@@ -1,0 +1,9 @@
+#gitignore Krzysiek014
+*.iml
+.idea
+
+/out/
+
+/target/
+
+*.log
