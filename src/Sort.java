@@ -1,5 +1,4 @@
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -12,7 +11,8 @@ public class Sort {
     private static String path = "";
     private static int column;
     private static Scanner cmdScan;
-    public static void main(String[] args) throws FileNotFoundException {
+
+    public static void main(String[] args) throws IOException {
         cmdScan = new Scanner(System.in);
         //Getting file path
         getFile();
@@ -25,25 +25,28 @@ public class Sort {
         }
         scan.close();
 
+        // Sort by column
         chooseColumn();
-
-        cmdScan.close();
-
         sort(column);
 
-        for(String[] s: list)
-        System.out.println(s[0] + "          "+ s[1]);
+        //Print results
+        for(String[] s: list) {
+            for (String entry : s)
+                System.out.print(String.format("%1$20s", entry));
+            System.out.println();
+        }
+
+        //Saving file
+        System.out.println("Save changes to a new file? (y/n)");
+        cmdScan.nextLine();
+        saveResults();
+
     }
 
     private static void sort(int i){
         String[] header = list.get(0);
         list.remove(0);
-        Collections.sort(list, new Comparator<String[]>() {
-            @Override
-            public int compare(String[] o1, String[] o2) {
-                return o1[i].compareTo(o2[i]);
-            }
-        });
+        list.sort(Comparator.comparing(o -> o[i]));
         list.add(0,header);
     }
 
@@ -70,6 +73,26 @@ public class Sort {
         }catch(InputMismatchException e){
             chooseColumn();
         }
+
+    }
+
+    private static void saveResults() throws FileNotFoundException {
+        switch(cmdScan.nextLine().toUpperCase()){
+            case "Y":
+                System.out.println("Enter name for a new .csv file");
+                PrintWriter pw = new PrintWriter(file.getAbsolutePath().substring(0,file.getAbsolutePath().lastIndexOf("\\")+1) + cmdScan.nextLine() +".csv");
+                for(String[] entry : list)
+                    pw.write(String.join(",",entry)+"\n");
+                pw.close();
+                break;
+            case "N":
+                System.out.println("Exit...");
+                break;
+            default:
+                System.out.println("Type y to save changes or n to exit without saving");
+                saveResults();
+        }
+
 
     }
 
